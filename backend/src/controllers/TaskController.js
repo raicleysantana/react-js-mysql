@@ -2,6 +2,7 @@ const { json } = require('express');
 const database = require('../database/connection');
 
 class TaskController {
+
     novaTarefa(req, res) {
         const { tarefa, descricao, responsavel } = req.body;
 
@@ -21,9 +22,9 @@ class TaskController {
     listarTarefa(req, res) {
         database
             .select("*")
-            .table("talks")
+            .table("tasks")
             .then(tarefa => {
-                return tarefa.json(tarefa);
+                return res.json(tarefa);
             }).catch(error => {
                 console.log(error);
             });
@@ -34,10 +35,10 @@ class TaskController {
 
         database
             .select("*")
-            .table("talks")
+            .table("tasks")
             .where({ id: id })
             .then(tarefa => {
-                return tarefa.json(tarefa);
+                return res.json(tarefa);
             }).catch(error => {
                 console.log(error);
             });
@@ -45,11 +46,11 @@ class TaskController {
 
     atualizarTarefa(req, res) {
         const id = req.params;
-        const { descricao } = req.body;
+        const { responsavel, descricao, tarefa } = req.body;
 
         database
             .where({ id: id })
-            .update({ descricao: descricao })
+            .update({ tarefa, descricao, responsavel })
             .table("tasks")
             .then(data => {
                 return res.json({ message: "Tarefa atualizada com sucesso" });
@@ -59,16 +60,16 @@ class TaskController {
     }
 
     removerTarefa(req, res) {
-        const id = req.params;
+        const { id } = req.params;
 
         database
+            .table("tasks")
             .where({ id: id })
             .del()
-            .table("tasks")
             .then(data => {
-                return res.json({ message: "Tarefa removovida com sucesso" });
+                res.json({ message: "Tarefa removovida com sucesso" });
             }).catch(error => {
-                return res.json(error);
+                res.json(error);
             })
     }
 }

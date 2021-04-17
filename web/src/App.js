@@ -4,15 +4,36 @@ import { FaPlus, FaTrash } from 'react-icons/fa';
 import api from './service/api';
 
 export default class App extends Component {
+
   state = {
+    tarefas: [],
     tarefa: "",
     descricao: "",
     responsavel: ""
   }
 
-  novaTarefa() {
-    console.log(this.state);
+  async carregaTarefas() {
+    await api.get('tarefas').then(resp => {
+      console.log("Tarefas: " + resp.data);
+      this.setState({ tarefas: resp.data });
+    });
+
   }
+
+  novaTarefa() {
+    api.post('novaTarefa', { tarefa: this.state.tarefa }).then(resp => {
+      console.log(resp.data)
+    });
+  }
+
+  async removeTarefa(id) {
+    const response = await api.delete(`delete/tarefa/${id}`);
+    console.log(response);
+  }
+
+  componentDidMount() {
+    this.carregaTarefas();
+  };
 
   render() {
     return (
@@ -47,9 +68,13 @@ export default class App extends Component {
             <div className="titulo2">
               <h4>Tarefas Criadas</h4>
             </div>
-            <div className="task" >
-              <div className="taskItem" >tarefa1</div><FaTrash className="trashIcon"></FaTrash>
-            </div>
+            {this.state.tarefas.map(tarefa =>
+              <div className="task" key={tarefa.id}>
+                <div className="taskItem">{tarefa.tarefa}</div>
+                <FaTrash className="trashIcon" onClick={() => this.removeTarefa(tarefa.id)}></FaTrash>
+              </div>
+            )}
+
           </div>
         </div>
       </div>
